@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using APIWebAspNet_config.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SqlServer.Server;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -12,25 +13,34 @@ namespace APIWebAspNet_config.Data
 
         }
 
-        //se non lo indichiamo in Program.cs:
+
+        public DbSet<Coupon> Coupons { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Coupon>().HasData(
+                new Coupon()
+                {
+                    Id = 1,
+                    Name = "10OFF",
+                    Percent = 10,
+                    IsActive = true,
+                },
+                new Coupon()
+                {
+                    Id = 2,
+                    Name = "20OFF",
+                    Percent = 20,
+                    IsActive = true,
+                });
+        }
+
+
+        //Collegamento con DB: se non lo indichiamo in Program.cs =>
         // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { 
         // optionsBuilder.UseSqlServer(MyConnection); }
 
-        /* public DbSet<ModelName> ApplicationUsers { get; set; }
-        inserimento manuale nel db, con e migrazioni verranno automaticamente inseriti
-       protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<ModelName>().HasData(
-                new ModelName()
-                {
-                  … si inseriscono i dati in formato json
-                },
-                new ModelName()
-                {
-                   …  }
-                );
-        }*/
     }
 }
 
