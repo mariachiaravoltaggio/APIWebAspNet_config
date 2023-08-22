@@ -1,8 +1,5 @@
 ﻿using APIWebAspNet_config.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.SqlServer.Server;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace APIWebAspNet_config.Data
 {
@@ -12,7 +9,6 @@ namespace APIWebAspNet_config.Data
         {
 
         }
-
 
         public DbSet<Coupon> Coupons { get; set; }
 

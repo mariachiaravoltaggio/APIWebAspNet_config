@@ -6,7 +6,6 @@ using APIWebAspNet_config.Models.DTOs;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,7 +47,7 @@ app.MapGet("/api/coupon/{id:int}", (ApplicationDbContext _db, ILogger < Program 
 
     if ( _db.Coupons.FirstOrDefault(u => u.Id == id) == null|| id == 0)
     {
-        response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
+        response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
         response.ErrorMessages.Add("Id cannot be zero or not exist.");
         _logger.Log(LogLevel.Error, "Non riesco a prendere il Coupon: id=0 o non esiste");
         return Results.BadRequest(response);
@@ -59,7 +58,7 @@ app.MapGet("/api/coupon/{id:int}", (ApplicationDbContext _db, ILogger < Program 
     response.StatusCode = HttpStatusCode.OK;
     return Results.Ok(response);
 }
-).WithName("GetCoupon").Produces<APIResponse>(200);
+).WithName("GetCoupon").Produces<APIResponse>(200).Produces(404);
 
 //Crea Coupon
 app.MapPost("/api/coupon", (IMapper _mapper, ApplicationDbContext _db, ILogger < Program > _logger,[FromBody] CouponCreateDTO couponCreateDTO) =>
@@ -88,32 +87,49 @@ app.MapPost("/api/coupon", (IMapper _mapper, ApplicationDbContext _db, ILogger <
 ).WithName("CreateCoupon").Accepts<CouponCreateDTO>("application/json").Produces<APIResponse>(201).Produces(400);
 
 //Update Coupon
-app.MapPut("/api/coupon", (IMapper _mapper, ApplicationDbContext _db, ILogger<Program> _logger, [FromBody] CouponUpdateDTO couponUpdateDTO) =>
+app.MapPut("/api/coupon/{id:int}", (IMapper _mapper, ApplicationDbContext _db, ILogger<Program> _logger,int id, [FromBody] CouponUpdateDTO couponUpdateDTO) =>
 {
-    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
+    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
 
-    _db.Coupons.Update(_mapper.Map<Coupon>(couponUpdateDTO));
-    _db.SaveChanges();
 
-    response.Result = _mapper.Map<CouponDTO>(_db.Coupons.FirstOrDefault(c => c.Id == couponUpdateDTO.Id));
-    response.IsSuccess = true;
-    response.StatusCode = HttpStatusCode.OK;
-    return Results.Ok(response);
+    // Trova il coupon da modificare per ID
+    var existingCoupon = _db.Coupons.FirstOrDefault(c => c.Id == id);
+
+    if (existingCoupon != null)
+    {
+        // Applica le modifiche dal DTO all'oggetto esistente
+        _mapper.Map(couponUpdateDTO, existingCoupon);
+
+        // Salva le modifiche nel database
+        _db.SaveChanges();
+
+        // Prepara la risposta di successo
+        response.IsSuccess = true;
+        response.StatusCode = HttpStatusCode.OK;
+        return Results.Ok(response);
+    }
+    else
+    {
+        // Coupon non trovato, restituisci uno status 404 (Not Found)
+        response.StatusCode = HttpStatusCode.NotFound;
+        response.ErrorMessages.Add("Coupon not Found");
+        return Results.NotFound(response);
+    }
 
 }
-).WithName("UpdateCoupon").Produces<APIResponse>(200).Produces(400);
+).WithName("UpdateCoupon").Produces<APIResponse>(200).Produces(404);
 
 //Elimina Coupon
 app.MapDelete("/api/coupon/{id:int}", (ApplicationDbContext _db, ILogger<Program> _logger, int id) =>
 {
-    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
+    APIResponse response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
    
     if (_db.Coupons.FirstOrDefault(u => u.Id == id) == null || id == 0)
     {
-        response = new() { IsSuccess = false, StatusCode = HttpStatusCode.BadRequest };
+        response = new() { IsSuccess = false, StatusCode = HttpStatusCode.NotFound };
         response.ErrorMessages.Add("Id cannot be zero or not exist.");
         _logger.Log(LogLevel.Error, "Non posso eliminare!");
-        return Results.BadRequest(response);
+        return Results.NotFound(response);
     }
 
     Coupon coupon = _db.Coupons.FirstOrDefault(c => c.Id == id);
