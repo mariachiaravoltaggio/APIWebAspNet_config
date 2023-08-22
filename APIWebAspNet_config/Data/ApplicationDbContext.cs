@@ -22,6 +22,7 @@ namespace APIWebAspNet_config.Data
                     Name = "10OFF",
                     Percent = 10,
                     IsActive = true,
+                    Created = DateTime.Now,
                 },
                 new Coupon()
                 {
@@ -29,6 +30,7 @@ namespace APIWebAspNet_config.Data
                     Name = "20OFF",
                     Percent = 20,
                     IsActive = true,
+                    Created = DateTime.Now,
                 });
         }
 
