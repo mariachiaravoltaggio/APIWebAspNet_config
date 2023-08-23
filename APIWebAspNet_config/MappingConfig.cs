@@ -12,6 +12,8 @@ namespace APIWebAspNet_config
             CreateMap<Coupon, CouponDTO>().ReverseMap();
             CreateMap<Coupon, CouponCreateDTO>().ReverseMap();
             CreateMap<Coupon, CouponUpdateDTO>().ReverseMap();
+            CreateMap<LocalUser, UserDTO>().ReverseMap();
+            CreateMap<ApplicationUser, UserDTO>().ReverseMap();
         }
     }
 }

@@ -9,8 +9,10 @@ namespace APIWebAspNet_config.Data
         {
 
         }
-
+     
         public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<LocalUser> LocalUsers { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
